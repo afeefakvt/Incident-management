@@ -26,7 +26,7 @@ export const IncidentCreateSchema = z.object({
   location: z.string().optional().nullable(),
   latitude: z.coerce.number().optional().nullable(),
   longitude: z.coerce.number().optional().nullable(),
-  occurredAt: z.coerce.date(), // ✅ auto-convert string → Date
+  occurredAt: z.coerce.date(), // auto-convert string → Date
   carReadingId: z.coerce.number().optional().nullable(),
   images: z.array(z.string().url()).optional().default([]),
   documents: z.array(z.string().url()).optional().default([]),
@@ -63,3 +63,5 @@ export const IncidentCommentSchema = z.object({
   message: z.string().min(1),
   updateType: z.literal("COMMENT"),
 });
+
+
