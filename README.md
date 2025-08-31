@@ -135,7 +135,7 @@ PUT /api/incidents/:id → Update incident
 POST /api/incidents/:id/updates → Post Incident Comment
 
 
-🚀 Deployment (Vercel)
+## 🚀 Deployment (Vercel)
 
 Push code to GitHub
 
@@ -146,7 +146,7 @@ Set environment variables in Vercel dashboard (DATABASE_URL)
 Ensure prisma generate run during build
 
 
-✅ Notes
+## ✅ Notes
 
 Make sure NeonDB connection pooling is enabled for Prisma.
 
