@@ -1,5 +1,4 @@
 import IncidentDetail from "@/components/incidents/IncidentDetail";
-import RoleSelector from "@/components/RoleSelector";
 
 export default async function Page({ params }: { params: { id: string } }) {
    const { id } = await params; 
