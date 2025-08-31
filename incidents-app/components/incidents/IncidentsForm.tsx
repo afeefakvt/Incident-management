@@ -1,12 +1,27 @@
-'use client';
+"use client";
 
+import { useState } from "react";
+import { useCreateIncident } from "@/lib/queries/incidents";
+import { uploadImages } from "@/lib/cloudinary";
+import { useUsers } from "@/lib/queries/users";
+import { useCars } from "@/lib/queries/cars";
 
-import { useState } from 'react';
-import { useCreateIncident } from '@/lib/queries/incidents';
-import { uploadImages } from '@/lib/cloudinary';
+interface Car {
+  id: number;
+  regNumber: string;
+}
 
-export default function IncidentForm({ users = [], cars = [] }: { users?: any[]; cars?: any[] }) {
+interface User {
+  id: number;
+  name: string;
+  role: string;
+}
+
+export default function IncidentForm() {
+  const { data: users = [], isLoading: usersLoading } = useUsers();
+  const { data: cars = [], isLoading: carsLoading } = useCars();
   const { mutateAsync, isPending } = useCreateIncident();
+
   const [step, setStep] = useState(1);
   const [images, setImages] = useState<File[]>([]);
 
@@ -14,11 +29,13 @@ export default function IncidentForm({ users = [], cars = [] }: { users?: any[];
     const payload: any = Object.fromEntries(formData.entries());
     payload.carId = Number(payload.carId);
     payload.reportedById = Number(payload.reportedById);
-    payload.assignedToId = payload.assignedToId ? Number(payload.assignedToId) : null;
+    payload.assignedToId = payload.assignedToId
+      ? Number(payload.assignedToId)
+      : null;
     payload.severity = String(payload.severity);
-    payload.status = 'PENDING';
+    payload.status = "PENDING";
     payload.type = String(payload.type);
-    payload.occurredAt = new Date(String(payload.occurredAt)).toISOString();
+    payload.occurredAt = new Date(payload.occurredAt + ":00").toISOString();
 
     if (images.length) {
       const urls = await uploadImages(images);
@@ -26,14 +43,13 @@ export default function IncidentForm({ users = [], cars = [] }: { users?: any[];
     }
 
     await mutateAsync(payload);
-    window.location.href = '/fleetmanager/incidents';
+    window.location.href = "/fleetmanager/incidents";
   }
 
   return (
     <form action={onSubmit} className="space-y-4">
       {/* Step 1: Basics */}
-      {step === 1 && (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className={step === 1 ? "grid md:grid-cols-2 gap-4" : "hidden"}>
           <input
             name="title"
             required
@@ -43,13 +59,13 @@ export default function IncidentForm({ users = [], cars = [] }: { users?: any[];
 
           <select name="type" className="border rounded px-3 py-2" required>
             {[
-              'ACCIDENT',
-              'BREAKDOWN',
-              'THEFT',
-              'VANDALISM',
-              'MAINTENANCE_ISSUE',
-              'TRAFFIC_VIOLATION',
-              'FUEL_ISSUE',
+              "ACCIDENT",
+              "BREAKDOWN",
+              "THEFT",
+              "VANDALISM",
+              "MAINTENANCE_ISSUE",
+              "TRAFFIC_VIOLATION",
+              "FUEL_ISSUE",
             ].map((t) => (
               <option key={t} value={t}>
                 {t}
@@ -64,7 +80,7 @@ export default function IncidentForm({ users = [], cars = [] }: { users?: any[];
           />
 
           <select name="severity" className="border rounded px-3 py-2">
-            {['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].map((s) => (
+            {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
@@ -75,24 +91,31 @@ export default function IncidentForm({ users = [], cars = [] }: { users?: any[];
             name="occurredAt"
             type="datetime-local"
             className="border rounded px-3 py-2"
+            required
           />
         </div>
-      )}
+      
 
       {/* Step 2: Associations */}
-      {step === 2 && (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className={step === 2 ? "grid md:grid-cols-2 gap-4" : "hidden"}>
           <select name="carId" className="border rounded px-3 py-2" required>
-            <option value="">Select Vehicle</option>
-            {cars.map((c) => (
+            <option value="">Select Car</option>
+            {cars.map((c: Car) => (
               <option key={c.id} value={c.id}>
                 {c.regNumber}
               </option>
             ))}
           </select>
+          
 
-          <select name="reportedById" className="border rounded px-3 py-2" required>
-            {users.map((u) => (
+          <select
+            name="reportedById"
+            className="border rounded px-3 py-2"
+            required
+          >
+            <option value="">Select Your Name</option>
+
+            {users.map((u: User) => (
               <option key={u.id} value={u.id}>
                 {u.name}
               </option>
@@ -102,13 +125,14 @@ export default function IncidentForm({ users = [], cars = [] }: { users?: any[];
           <select name="assignedToId" className="border rounded px-3 py-2">
             <option value="">Unassigned</option>
             {users
-              .filter((u) => u.role !== 'DRIVER')
-              .map((u) => (
+              .filter((u: User) => u.role !== "DRIVER")
+              .map((u: User) => (
                 <option key={u.id} value={u.id}>
                   {u.name}
                 </option>
               ))}
           </select>
+
 
           <input
             name="location"
@@ -116,19 +140,17 @@ export default function IncidentForm({ users = [], cars = [] }: { users?: any[];
             className="border rounded px-3 py-2"
           />
         </div>
-      )}
 
       {/* Step 3: Uploads */}
-      {step === 3 && (
-        <div className="space-y-2">
+        <div className={step === 3 ? "space-y-2" : "hidden"}>
           <input
             type="file"
             multiple
             accept="image/*"
             onChange={(e) => setImages(Array.from(e.target.files || []))}
+            required
           />
         </div>
-      )}
 
       {/* Stepper Controls */}
       <div className="flex justify-between">
@@ -153,7 +175,7 @@ export default function IncidentForm({ users = [], cars = [] }: { users?: any[];
             disabled={isPending}
             className="px-3 py-2 rounded bg-green-600 text-white"
           >
-            {isPending ? 'Creating…' : 'Create Incident'}
+            {isPending ? "Creating…" : "Create Incident"}
           </button>
         )}
       </div>

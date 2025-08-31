@@ -1,15 +1,19 @@
 import { z } from "zod";
 
 export const IncidentCreateSchema = z.object({
-  carId: z.number().int(),
-  reportedById: z.number().int(),
-  assignedToId: z.number().int().optional().nullable(),
+  carId: z.coerce.number().int(),
+  reportedById: z.coerce.number().int(),
+  assignedToId: z.coerce.number().int().optional().nullable(),
   title: z.string().min(3),
   description: z.string().min(5),
   severity: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]).default("LOW"),
-  status: z
-    .enum(["PENDING", "IN_PROGRESS", "RESOLVED", "CLOSED", "CANCELLED"])
-    .default("PENDING"),
+  status: z.enum([
+    "PENDING",
+    "IN_PROGRESS",
+    "RESOLVED",
+    "CLOSED",
+    "CANCELLED",
+  ]).default("PENDING"),
   type: z.enum([
     "ACCIDENT",
     "BREAKDOWN",
@@ -20,14 +24,15 @@ export const IncidentCreateSchema = z.object({
     "FUEL_ISSUE",
   ]),
   location: z.string().optional().nullable(),
-  latitude: z.number().optional().nullable(),
-  longitude: z.number().optional().nullable(),
-  occurredAt: z.string().or(z.date()),
-  carReadingId: z.number().int().optional().nullable(),
+  latitude: z.coerce.number().optional().nullable(),
+  longitude: z.coerce.number().optional().nullable(),
+  occurredAt: z.coerce.date(), // ✅ auto-convert string → Date
+  carReadingId: z.coerce.number().optional().nullable(),
   images: z.array(z.string().url()).optional().default([]),
   documents: z.array(z.string().url()).optional().default([]),
-  estimatedCost: z.number().optional().nullable(),
+  estimatedCost: z.coerce.number().optional().nullable(),
 });
+
 
 export const IncidentUpdateSchema = z.object({
   title: z.string().min(3).optional(),
@@ -44,7 +49,7 @@ export const IncidentUpdateSchema = z.object({
     "MAINTENANCE_ISSUE",
     "TRAFFIC_VIOLATION",
     "FUEL_ISSUE",
-  ]),
+  ]).optional(),
   location: z.number().int().nullable().optional(),
   resolutionNotes: z.string().optional().nullable(),
   estimatedCost: z.number().optional().nullable(),

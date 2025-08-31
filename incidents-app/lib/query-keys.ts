@@ -7,4 +7,16 @@ export const queryKeys = {
     detail: (id: string) => [["incidents", "detail", id]] as const,
     stats: () => [["incidents", "stats"]] as const,
   },
+
+  users:{
+    list:()=>["users"],
+    lists:()=>["users"],
+    detail:(id:string) => ['user',id]
+  },
+
+  cars:{
+    list:()=>["cars"],
+    lists:()=>["cars"],
+    detail:(id:string)=>["car",id]
+  }
 };

@@ -1,10 +1,11 @@
 import IncidentDetail from "@/components/incidents/IncidentDetail";
+import RoleSelector from "@/components/RoleSelector";
 
-
-export default function Page({ params }: { params: { id: string } }) {
+export default async function Page({ params }: { params: { id: string } }) {
+   const { id } = await params; 
   return (
     <main className="p-4">
-      <IncidentDetail id={params.id} />
+      <IncidentDetail id={id} />
     </main>
   );
 }

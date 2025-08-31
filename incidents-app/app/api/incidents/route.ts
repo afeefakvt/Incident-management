@@ -6,7 +6,9 @@ const prisma = new PrismaClient();
 
 // GET /api/incidents
 export async function GET(req: NextRequest) {
+
   const { searchParams } = new URL(req.url);
+
   const status = searchParams.get("status") || undefined;
   const severity = searchParams.get("severity") || undefined;
   const carId = searchParams.get("carId")
@@ -20,7 +22,9 @@ export async function GET(req: NextRequest) {
   const query = searchParams.get("query") || undefined;
   const page = Number(searchParams.get("page") || 1);
   const limit = Number(searchParams.get("limit") || 10);
+
   const where: any = {};
+  
   if (status) where.status = status as any;
   if (severity) where.severity = severity as any;
   if (carId) where.carId = carId;
@@ -50,11 +54,16 @@ export async function GET(req: NextRequest) {
 }
 
 //POST /api/incidents
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest) {  
   try {
     const body = await req.json();
     const parsed = IncidentCreateSchema.safeParse(body);
+    console.log("Body received:", body);
+console.log("Validation result:", parsed);
+
     if (!parsed.success) {
+      console.error("Validation failed:", parsed.error.format());
+  console.log("Received body:", body);
       return NextResponse.json(
         { error: parsed.error.flatten() },
         { status: 400 }
@@ -62,6 +71,9 @@ export async function POST(req: NextRequest) {
     }
 
     const data = parsed.data;
+
+    console.log(data,"dataaaaaaaaaaaaaaa");
+    
     const occurredAt = new Date(data.occurredAt as any);
     const created = await prisma.incident.create({
       data: {
@@ -97,5 +109,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
-
-

@@ -7,11 +7,11 @@ const prisma = new PrismaClient();
 //get incident details
 export async function GET(
   _: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(params.id);
+  const { id } = await context.params;   //  must await
   const incident = await prisma.incident.findUnique({
-    where: { id },
+    where: { id: Number(id) },
     include: {
       car: true,
       reportedBy: true,
@@ -20,39 +20,46 @@ export async function GET(
       updates: { include: { user: true }, orderBy: { createdAt: "asc" } },
     },
   });
-  if (!incident)
+
+  if (!incident) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   return NextResponse.json(incident);
 }
 
-//update
+// PUT /api/incidents/[id]
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(params.id);
+  const { id } = await context.params;   //  must await
   const body = await req.json();
+
+
   const parsed = IncidentUpdateSchema.safeParse(body);
-  if (!parsed.success)
+  
+  if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.flatten() },
       { status: 400 }
     );
+  }
+
   const data = parsed.data;
   const updated = await prisma.incident.update({
-    where: { id },
+    where: { id: Number(id) },
     data: {
       ...data,
-      resolvedAt: data.resolvedAt
-        ? new Date(data.resolvedAt as any)
-        : undefined,
+      resolvedAt: data.resolvedAt ? new Date(data.resolvedAt as any) : undefined,
     },
-  }); 
-  // Minimal audit (examples)
+  });
+
+  // Audit logging
   if (data.status) {
     await prisma.incidentUpdate.create({
       data: {
-        incidentId: id,
+        incidentId: Number(id),
         userId: updated.assignedToId ?? updated.reportedById,
         message: `Status → ${data.status}`,
         updateType: "STATUS_CHANGE",
@@ -62,14 +69,13 @@ export async function PUT(
   if (typeof updated.assignedToId !== "undefined") {
     await prisma.incidentUpdate.create({
       data: {
-        incidentId: id,
+        incidentId: Number(id),
         userId: updated.assignedToId ?? updated.reportedById,
-        message: `Assigned to ${updated.assignedToId ?? 'none'}`,
+        message: `Assigned to ${updated.assignedToId ?? "none"}`,
         updateType: "ASSIGNMENT",
       },
     });
   }
+
   return NextResponse.json(updated);
 }
-
-
