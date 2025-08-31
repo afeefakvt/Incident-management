@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useIncidents } from "@/lib/queries/incidents";
 
 export default function IncidentsTable({ initialFilters = {} as any }) {
+  const [page, setPage] = useState(1);
+  const limit = 4;
   const [filters, setFilters] = useState(initialFilters);
-  const { data, isLoading } = useIncidents(filters);
+  const { data, isLoading } = useIncidents({ ...filters, page, limit });
 
   if (isLoading) return <div className="p-4">Loading…</div>;
 
@@ -93,11 +95,7 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
                   </span>
                 </td>
                 <td className="p-3">
-                  <a
-                    className=" font-medium text-orange-800"
-                  >
-                    {it.status}
-                  </a>
+                  <a className=" font-medium text-orange-800">{it.status}</a>
                 </td>
                 <td className="p-3 text-gray-600">
                   {new Date(it.occurredAt).toLocaleString()}
@@ -137,6 +135,25 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
           </div>
         ))}
       </div>
+      <div className="flex justify-between items-center mt-4">
+        <button
+          className="px-3 py-1 bg-gray-200 rounded"
+          disabled={page === 1}
+          onClick={() => setPage((p) => p - 1)}
+        >
+          Previous
+        </button>
+        <span>
+          Page {page} of {Math.ceil((data?.total ?? 0) / limit)}
+        </span>
+        <button
+          className="px-3 py-1 bg-gray-200 rounded"
+          disabled={page >= Math.ceil((data?.total ?? 0) / limit)}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
@@ -149,4 +166,3 @@ function badgeBySeverity(s: string) {
     ? "bg-yellow-100 text-yellow-700"
     : "bg-green-100 text-green-700";
 }
-

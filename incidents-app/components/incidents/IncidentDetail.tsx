@@ -6,8 +6,10 @@ import {
   useAddIncidentComment,
   useUpdateIncident,
 } from "@/lib/queries/incidents";
+import { useRouter } from "next/navigation";
 
 export default function IncidentDetail({ id }: { id: string }) {
+  const router = useRouter(); 
   const { data, isLoading } = useIncidentDetail(id);
   const addComment = useAddIncidentComment();
   const update = useUpdateIncident();
@@ -39,6 +41,15 @@ export default function IncidentDetail({ id }: { id: string }) {
           <option value="DRIVER">Driver</option>
           <option value="FLEET_MANAGER">Fleet Manager</option>
         </select>
+
+        {role === "ADMIN" && (
+          <button
+            onClick={() => router.push("/fleetmanager/incidents/stats")}
+            className="ml-4 px-3 py-2 bg-black text-white rounded cursor-pointer"
+          >
+            Go to Stats
+          </button>
+        )}
       </div>
 
       {/* Incident main info */}
