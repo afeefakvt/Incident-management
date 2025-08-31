@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "prisma:seed": "ts-node prisma/seed.ts",
-      "vercel-post-build": "npx prisma db push && npx prisma migrate deploy && npx prisma db seed"
+    "vercel-post-build": "prisma generate && npx prisma migrate deploy && npx prisma db seed && next build"
 
   },
   "dependencies": {
