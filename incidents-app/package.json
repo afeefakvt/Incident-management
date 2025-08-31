@@ -7,8 +7,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "prisma:seed": "ts-node prisma/seed.ts",
-    "vercel-post-build": "prisma generate && npx prisma migrate deploy && npx prisma db seed && next build"
+    "prisma:seed": "ts-node prisma/seed.ts"
 
   },
   "dependencies": {
@@ -38,7 +37,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
-  "peisma": {
+  "prisma": {
     "seed": "ts-node prisma/seed.ts"
   }
 }
