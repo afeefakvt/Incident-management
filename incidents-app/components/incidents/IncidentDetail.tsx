@@ -9,12 +9,14 @@ import {
 import { useRouter } from "next/navigation";
 
 export default function IncidentDetail({ id }: { id: string }) {
-  const router = useRouter(); 
+  const router = useRouter();
   const { data, isLoading } = useIncidentDetail(id);
   const addComment = useAddIncidentComment();
   const update = useUpdateIncident();
 
-  const [role, setRole] = useState<"ADMIN" | "DRIVER" | "FLEET_MANAGER">("DRIVER");
+  const [role, setRole] = useState<"ADMIN" | "DRIVER" | "FLEET_MANAGER">(
+    "DRIVER"
+  );
 
   if (isLoading) return <div className="p-4">Loading…</div>;
 
@@ -94,13 +96,17 @@ export default function IncidentDetail({ id }: { id: string }) {
               }
               className="border rounded px-2 py-1"
             >
-              {["PENDING", "IN_PROGRESS", "RESOLVED", "CLOSED", "CANCELLED"].map(
-                (s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                )
-              )}
+              {[
+                "PENDING",
+                "IN_PROGRESS",
+                "RESOLVED",
+                "CLOSED",
+                "CANCELLED",
+              ].map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
             </select>
           </div>
         ) : (
@@ -120,21 +126,22 @@ export default function IncidentDetail({ id }: { id: string }) {
               <span className="text-gray-500">
                 {new Date(u.createdAt).toLocaleString()} —{" "}
               </span>
-              <span className="font-medium">{u.user?.name ?? "User"} : </span>
               {u.message}
             </li>
           ))}
         </ol>
-        <form action={onComment} className="mt-3 flex gap-2">
-          <input
-            name="message"
-            className="border rounded px-3 py-2 flex-1"
-            placeholder="Add a comment"
-          />
-          <button className="px-3 py-2 rounded bg-black text-white">
-            Send
-          </button>
-        </form>
+        {role === "ADMIN" && (
+          <form action={onComment} className="mt-3 flex gap-2">
+            <input
+              name="message"
+              className="border rounded px-3 py-2 flex-1"
+              placeholder="Add a comment"
+            />
+            <button className="px-3 py-2 rounded bg-black text-white">
+              Send
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
