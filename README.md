@@ -132,7 +132,7 @@ GET /api/incidents/:id → Get incident details
 
 PUT /api/incidents/:id → Update incident
 
-POST /api/incidents/:id/updates → Post Incident Comment
+POST /api/incidents/:id/updates → Post Incident Update Comment
 
 
 ## 🚀 Deployment (Vercel)
