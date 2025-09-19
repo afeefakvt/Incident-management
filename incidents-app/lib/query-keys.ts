@@ -18,5 +18,11 @@ export const queryKeys = {
     list:()=>["cars"],
     lists:()=>["cars"],
     detail:(id:string)=>["car",id]
+  },
+
+  notifications:{
+    lists:()=>["notifications" as const],
+    list:(role:string)=> ["notifications" as const],
   }
 };
+

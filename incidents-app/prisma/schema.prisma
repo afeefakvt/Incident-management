@@ -161,3 +161,12 @@ enum IncidentUpdateType {
  @@map("incident_update_types")
 }
 
+
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  role      String   // "ADMIN" | "DRIVER" | "FLEET_MANAGER"
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

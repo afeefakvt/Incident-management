@@ -71,9 +71,7 @@ console.log("Validation result:", parsed);
     }
 
     const data = parsed.data;
-
-    console.log(data,"dataaaaaaaaaaaaaaa");
-    
+        
     const occurredAt = new Date(data.occurredAt as any);
     const created = await prisma.incident.create({
       data: {

@@ -1,148 +1,196 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useState } from "react"
 import {
   useIncidentDetail,
   useAddIncidentComment,
   useUpdateIncident,
-} from "@/lib/queries/incidents";
-import { useRouter } from "next/navigation";
+} from "@/lib/queries/incidents"
+import { useRouter } from "next/navigation"
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export default function IncidentDetail({ id }: { id: string }) {
-  const router = useRouter();
-  const { data, isLoading } = useIncidentDetail(id);
-  const addComment = useAddIncidentComment();
-  const update = useUpdateIncident();
+  const router = useRouter()
+  const { data, isLoading } = useIncidentDetail(id)
+  const addComment = useAddIncidentComment()
+  const update = useUpdateIncident()
 
   const [role, setRole] = useState<"ADMIN" | "DRIVER" | "FLEET_MANAGER">(
     "DRIVER"
-  );
+  )
 
-  if (isLoading) return <div className="p-4">Loading…</div>;
-
-  const inc = data;
+  if (isLoading) return <div className="p-4">Loading…</div>
+  const inc = data
 
   async function onComment(formData: FormData) {
     await addComment.mutateAsync({
       id,
       comment: String(formData.get("message") || ""),
-    });
+    })
   }
 
   return (
     <div className="space-y-6">
-      {/* Role selector */}
-      <div className="rounded-xl border p-4 bg-gray-50">
-        <label className="font-medium mr-2">Select Your Role: </label>
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value as any)}
-          className="border rounded px-3 py-2"
-        >
-          <option value="ADMIN">Admin</option>
-          <option value="DRIVER">Driver</option>
-          <option value="FLEET_MANAGER">Fleet Manager</option>
-        </select>
+      <Card>
+        <CardContent className="flex flex-wrap items-center gap-4 p-4">
+          <div className="flex items-center gap-2">
+            <label className="font-medium">Select Your Role:</label>
+            <Select
+              value={role}
+              onValueChange={(val: any) => setRole(val)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ADMIN">Admin</SelectItem>
+                <SelectItem value="DRIVER">Driver</SelectItem>
+                <SelectItem value="FLEET_MANAGER">Fleet Manager</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        {role === "ADMIN" && (
-          <button
-            onClick={() => router.push("/fleetmanager/incidents/stats")}
-            className="ml-4 px-3 py-2 bg-black text-white rounded cursor-pointer"
-          >
-            Go to Stats
-          </button>
-        )}
-      </div>
+          {role === "ADMIN" && (
+            <Button
+              onClick={() => router.push("/fleetmanager/incidents/stats")}
+            >
+              Go to Stats
+            </Button>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Incident main info */}
-      <div className="rounded-xl border p-4">
-        <div className="text-2xl font-semibold">{inc.title}</div>
-        <div className="text-sm text-gray-600">
-          {inc.type} • {inc.severity} • {inc.status}
-        </div>
-        <div className="mt-2">{inc.description}</div>
-        <div className="text-sm text-gray-600 mt-2">
-          Occurred: {new Date(inc.occurredAt).toLocaleString()}
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>{inc.title}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-muted-foreground">
+          <div>
+            <span className="font-medium text-foreground">{inc.type}</span> •{" "}
+            {inc.severity} • {inc.status}
+          </div>
+          <div className="text-foreground">{inc.description}</div>
+          <div>
+            Occurred:{" "}
+            <span className="font-medium text-foreground">
+              {new Date(inc.occurredAt).toLocaleString()}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Images */}
-      <div className="rounded-xl border p-4">
-        <div className="font-medium mb-2">Images</div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {inc.images?.map((url: string) => (
-            <img
-              key={url}
-              src={url}
-              alt=""
-              className="w-full h-28 object-cover rounded"
-            />
-          ))}
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Images</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {inc.images?.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {inc.images.map((url: string) => (
+                <img
+                  key={url}
+                  src={url}
+                  alt="Incident image"
+                  className="w-full h-32 object-cover rounded-lg"
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No images available.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Workflow - depends on role */}
-      <div className="rounded-xl border p-4">
-        <div className="font-medium mb-2">Workflow</div>
-        {role === "ADMIN" ? (
-          <div className="flex gap-2 items-center">
-            <select
+      <Card>
+        <CardHeader>
+          <CardTitle>Workflow</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {role === "ADMIN" ? (
+            <Select
               defaultValue={inc.status}
-              onChange={(e) =>
+              onValueChange={(val) =>
                 update.mutate({
                   id,
-                  data: { status: e.target.value },
+                  data: { status: val },
                 })
               }
-              className="border rounded px-2 py-1"
             >
-              {[
-                "PENDING",
-                "IN_PROGRESS",
-                "RESOLVED",
-                "CLOSED",
-                "CANCELLED",
-              ].map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : (
-          <div className="text-sm text-gray-700">
-            Current Status:{" "}
-            <span className="font-medium text-gray-900">{inc.status}</span>
-          </div>
-        )}
-      </div>
-
-      {/* Updates/comments */}
-      <div className="rounded-xl border p-4">
-        <div className="font-medium mb-2">Updates</div>
-        <ol className="space-y-2">
-          {inc.updates?.map((u: any) => (
-            <li key={u.id} className="text-sm">
-              <span className="text-gray-500">
-                {new Date(u.createdAt).toLocaleString()} —{" "}
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Update Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {[
+                  "PENDING",
+                  "IN_PROGRESS",
+                  "RESOLVED",
+                  "CLOSED",
+                  "CANCELLED",
+                ].map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="text-sm">
+              Current Status:{" "}
+              <span className="font-medium text-foreground">
+                {inc.status}
               </span>
-              {u.message}
-            </li>
-          ))}
-        </ol>
-        {role === "ADMIN" && (
-          <form action={onComment} className="mt-3 flex gap-2">
-            <input
-              name="message"
-              className="border rounded px-3 py-2 flex-1"
-              placeholder="Add a comment"
-            />
-            <button className="px-3 py-2 rounded bg-black text-white">
-              Send
-            </button>
-          </form>
-        )}
-      </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Updates / Comments */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Updates</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <ol className="space-y-2">
+            {inc.updates?.map((u: any) => (
+              <li key={u.id} className="text-sm">
+                <span className="text-muted-foreground">
+                  {new Date(u.createdAt).toLocaleString()} —{" "}
+                </span>
+                {u.message}
+              </li>
+            ))}
+          </ol>
+
+          {role === "ADMIN" && (
+            <form action={onComment} className="flex gap-2">
+              <Input
+                name="message"
+                placeholder="Add a comment"
+                className="flex-1"
+              />
+              <Button type="submit">Send</Button>
+            </form>
+          )}
+        </CardContent>
+      </Card>
     </div>
-  );
+  )
 }

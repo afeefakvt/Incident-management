@@ -1,120 +1,191 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useIncidents } from "@/lib/queries/incidents";
+import { useState, useEffect } from "react"
+import { useIncidents, useUpdateIncident } from "@/lib/queries/incidents"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { exportToPDF } from "@/lib/utils/exportPdf"
+import { exportToExcel } from "@/lib/utils/exportExcel"
+import { NotificationBell } from "./Bell"
 
 export default function IncidentsTable({ initialFilters = {} as any }) {
-  const [page, setPage] = useState(1);
-  const limit = 4;
-  const [filters, setFilters] = useState(initialFilters);
-  const { data, isLoading } = useIncidents({ ...filters, page, limit });
+  const [filters, setFilters] = useState({ ...initialFilters, page: 1, limit: 5 })
+  const [searchTerm, setSearchTerm] = useState("")
+  const { data, isLoading } = useIncidents(filters)
+  const { mutate } = useUpdateIncident()
 
-  if (isLoading) return <div className="p-4">Loading…</div>;
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setFilters((f: any) => ({ ...f, query: searchTerm, page: 1 }))
+    }, 400)
+    return () => clearTimeout(handler)
+  }, [searchTerm])
 
-  const items = data?.items ?? [];
+  if (isLoading) return <div className="p-4">Loading…</div>
+
+  const items = data?.items ?? []
+  const total = data?.total ?? 0
+  const page = filters.page
+  const limit = filters.limit
+  const totalPages = Math.ceil(total / limit)
+
+  const handleExportExcel = () => {
+    exportToExcel(items, "incidents")
+  }
+
+  const handleExportPDF = () => {
+    exportToPDF(items, "incidents")
+  }
+
   return (
-    <div className="space-y-3">
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2">
-        <input
-          className="input input-bordered px-3 py-2 rounded-lg borderw-64"
-          placeholder="Search title/desc/location"
-          onChange={(e) =>
-            setFilters((f: any) => ({ ...f, query: e.target.value, page: 1 }))
-          }
-        />
-        <select
-          className="px-3 py-2 rounded-lg border"
-          onChange={(e) =>
-            setFilters((f: any) => ({
-              ...f,
-              status: e.target.value || undefined,
-              page: 1,
-            }))
-          }
-        >
-          <option value="">All Status</option>
-          {["PENDING", "IN_PROGRESS", "RESOLVED", "CLOSED", "CANCELLED"].map(
-            (s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            )
-          )}
-        </select>
-        <select
-          className="px-3 py-2 rounded-lg border"
-          onChange={(e) =>
-            setFilters((f: any) => ({
-              ...f,
-              severity: e.target.value || undefined,
-              page: 1,
-            }))
-          }
-        >
-          <option value="">All Severity</option>
-          {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+    <div className="space-y-4">
+      {/* Top bar with filters + bell */}
+      <div className="flex flex-wrap gap-3 items-center justify-between">
+        <div className="flex flex-wrap gap-3">
+          <Input
+            placeholder="Search title/desc/location"
+            className="w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          <Select
+            onValueChange={(val) =>
+              setFilters((f: any) => ({
+                ...f,
+                status: val || undefined,
+                page: 1,
+              }))
+            }
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              {["PENDING", "IN_PROGRESS", "RESOLVED", "CLOSED", "CANCELLED"].map(
+                (s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                )
+              )}
+            </SelectContent>
+          </Select>
+
+          <Select
+            onValueChange={(val) =>
+              setFilters((f: any) => ({
+                ...f,
+                severity: val || undefined,
+                page: 1,
+              }))
+            }
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Severity" />
+            </SelectTrigger>
+            <SelectContent>
+              {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExportExcel}>
+              Export Excel
+            </Button>
+            <Button variant="outline" onClick={handleExportPDF}>
+              Export PDF
+            </Button>
+          </div>
+        </div>
+
+        {/* Notification Bell aligned to right */}
+        <NotificationBell />
       </div>
+
       {/* Table (desktop) */}
-      <div className="hidden md:block overflow-x-auto rounded-xl border">
-        <table className="min-w-full text-sm border-collapse">
-          <thead className="bg-gray-50 text-left">
-            <tr>
-              <th className="p-3 w-40">Title</th>
-              <th className="p-3 w-28">Car</th>
-              <th className="p-3 w-28">Severity</th>
-              <th className="p-3 w-32">Status</th>
-              <th className="p-3 w-40">Occurred</th>
-              <th className="p-3 w-32">Assignee</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="hidden md:block rounded-xl border overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Car</TableHead>
+              <TableHead>Severity</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Occurred</TableHead>
+              <TableHead>Assignee</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {items.map((it: any) => (
-              <tr key={it.id} className="border-t hover:bg-gray-50">
-                <td className="p-3">
+              <TableRow key={it.id}>
+                <TableCell>
                   <a
-                    className="underline font-medium text-gray-800"
                     href={`/fleetmanager/incidents/${it.id}`}
+                    className="underline text-blue-600"
                   >
                     {it.title}
                   </a>
-                </td>
-                <td className="p-3 text-gray-600">{it.car?.regNumber}</td>
-                <td className="p-3">
+                </TableCell>
+                <TableCell>{it.car?.regNumber}</TableCell>
+                <TableCell>
                   <span
-                    className={`px-2 py-1 rounded text-xs font-semibold ${badgeBySeverity(
+                    className={`px-2 py-1 rounded text-xs ${badgeBySeverity(
                       it.severity
                     )}`}
                   >
                     {it.severity}
                   </span>
-                </td>
-                <td className="p-3">
-                  <a className=" font-medium text-orange-800">{it.status}</a>
-                </td>
-                <td className="p-3 text-gray-600">
+                </TableCell>
+                <TableCell>
+                  <Select
+                    defaultValue={it.status}
+                    onValueChange={(val) =>
+                      mutate({ id: String(it.id), data: { status: val } })
+                    }
+                  >
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[
+                        "PENDING",
+                        "IN_PROGRESS",
+                        "RESOLVED",
+                        "CLOSED",
+                        "CANCELLED",
+                      ].map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
                   {new Date(it.occurredAt).toLocaleString()}
-                </td>
-                <td className="p-3 text-gray-700 text-xs">
-                  {it.assignedTo?.name ?? "—"}
-                </td>
-              </tr>
+                </TableCell>
+                <TableCell>{it.assignedTo?.name ?? "—"}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
+
       {/* Cards (mobile) */}
       <div className="md:hidden grid gap-3">
         {items.map((it: any) => (
-          <div key={it.id} className="rounded-xl border p-3">
+          <Card key={it.id} className="p-4 space-y-2">
             <div className="font-medium">{it.title}</div>
             <div className="text-xs text-gray-600">{it.car?.regNumber}</div>
-            <div className="flex gap-2 my-2">
+            <div className="flex gap-2">
               <span
                 className={`px-2 py-1 rounded text-xs ${badgeBySeverity(
                   it.severity
@@ -122,41 +193,48 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
               >
                 {it.severity}
               </span>
-              <span className="px-2 py-1 rounded text-xs bggray-100">
+              <span className="px-2 py-1 rounded text-xs bg-gray-100">
                 {it.status}
               </span>
             </div>
             <a
-              className="text-blue-600 underline text-sm"
               href={`/fleetmanager/incidents/${it.id}`}
+              className="text-blue-600 underline text-sm"
             >
               View
             </a>
-          </div>
+          </Card>
         ))}
       </div>
-      <div className="flex justify-between items-center mt-4">
-        <button
-          className="px-3 py-1 bg-gray-200 rounded"
-          disabled={page === 1}
-          onClick={() => setPage((p) => p - 1)}
-        >
-          Previous
-        </button>
-        <span>
-          Page {page} of {Math.ceil((data?.total ?? 0) / limit)}
-        </span>
-        <button
-          className="px-3 py-1 bg-gray-200 rounded"
-          disabled={page >= Math.ceil((data?.total ?? 0) / limit)}
-          onClick={() => setPage((p) => p + 1)}
-        >
-          Next
-        </button>
-      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page === 1}
+            onClick={() => setFilters((f: any) => ({ ...f, page: page - 1 }))}
+          >
+            Previous
+          </Button>
+          <span className="text-sm">
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page === totalPages}
+            onClick={() => setFilters((f: any) => ({ ...f, page: page + 1 }))}
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </div>
-  );
+  )
 }
+
 function badgeBySeverity(s: string) {
   return s === "CRITICAL"
     ? "bg-red-100 text-red-700"
@@ -164,5 +242,5 @@ function badgeBySeverity(s: string) {
     ? "bg-orange-100 text-orange-700"
     : s === "MEDIUM"
     ? "bg-yellow-100 text-yellow-700"
-    : "bg-green-100 text-green-700";
+    : "bg-green-100 text-green-700"
 }

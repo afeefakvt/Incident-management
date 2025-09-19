@@ -35,6 +35,8 @@ export async function PUT(
 ) {
   const { id } = await context.params;   //  must await
   const body = await req.json();
+  console.log(body);
+  
 
 
   const parsed = IncidentUpdateSchema.safeParse(body);

@@ -3,7 +3,6 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create Users
   const admin = await prisma.user.create({
     data: {
       name: "Admin User",
