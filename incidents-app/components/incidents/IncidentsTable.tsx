@@ -141,7 +141,7 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
               <TableHead>Title</TableHead>
               <TableHead>Car</TableHead>
               <TableHead>Severity</TableHead>
-              <TableHead>Status</TableHead>
+              {/* <TableHead>Status</TableHead> */}
               <TableHead>Occurred</TableHead>
               <TableHead>Assignee</TableHead>
             </TableRow>
