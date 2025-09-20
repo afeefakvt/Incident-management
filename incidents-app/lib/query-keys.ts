@@ -23,6 +23,10 @@ export const queryKeys = {
   notifications:{
     lists:()=>["notifications" as const],
     list:(role:string)=> ["notifications" as const],
+  },
+
+  comments:{
+    list:(incidentId:number)=> ["comments", "list", incidentId] as const
   }
 };
 

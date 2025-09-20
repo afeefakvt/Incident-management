@@ -73,6 +73,7 @@ export const useCreateIncident = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.incidents.lists() });
       qc.invalidateQueries({ queryKey: queryKeys.incidents.stats() });
+      qc.invalidateQueries({queryKey:queryKeys.notifications.lists()})
     },
   });
 };
@@ -86,6 +87,7 @@ export const useUpdateIncident = () => {
       qc.invalidateQueries({ queryKey: queryKeys.incidents.lists() });
       qc.invalidateQueries({ queryKey: queryKeys.incidents.detail(vars.id) });
       qc.invalidateQueries({ queryKey: queryKeys.incidents.stats() });
+      qc.invalidateQueries({queryKey:queryKeys.notifications.lists()})
     },
   });
 };

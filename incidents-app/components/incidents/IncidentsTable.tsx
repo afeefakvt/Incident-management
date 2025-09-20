@@ -10,12 +10,15 @@ import { Button } from "@/components/ui/button"
 import { exportToPDF } from "@/lib/utils/exportPdf"
 import { exportToExcel } from "@/lib/utils/exportExcel"
 import { NotificationBell } from "./Bell"
+import { CommentsModal } from "../CommentsModal"
 
 export default function IncidentsTable({ initialFilters = {} as any }) {
   const [filters, setFilters] = useState({ ...initialFilters, page: 1, limit: 5 })
   const [searchTerm, setSearchTerm] = useState("")
   const { data, isLoading } = useIncidents(filters)
   const { mutate } = useUpdateIncident()
+  const [selectedIncident, setSelectedIncident] = useState<number | null>(null)
+
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -173,9 +176,22 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
                   {new Date(it.occurredAt).toLocaleString()}
                 </TableCell>
                 <TableCell>{it.assignedTo?.name ?? "—"}</TableCell>
+              <TableCell>
+              <Button variant="outline" size="sm" onClick={() => setSelectedIncident(it.id)}>
+                Comments
+              </Button>
+            </TableCell>
+
               </TableRow>
             ))}
           </TableBody>
+           {selectedIncident && (
+        <CommentsModal
+          incidentId={selectedIncident}
+          open={!!selectedIncident}
+          onClose={() => setSelectedIncident(null)}
+        />
+      )}
         </Table>
       </div>
 

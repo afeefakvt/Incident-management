@@ -28,6 +28,8 @@ export async function GET(
   return NextResponse.json(incident);
 }
 
+
+
 // PUT /api/incidents/[id]
 export async function PUT(
   req: NextRequest,
@@ -54,6 +56,7 @@ export async function PUT(
     data: {
       ...data,
       resolvedAt: data.resolvedAt ? new Date(data.resolvedAt as any) : undefined,
+      location: data.location ? String(data.location) : null,
     },
   });
 
@@ -78,6 +81,11 @@ export async function PUT(
       },
     });
   }
+  await prisma.notification.create({
+    data: {
+      message: `Incident #${updated.title} status updated → ${data.status}`,
+    },
+  });
 
   return NextResponse.json(updated);
 }

@@ -102,6 +102,12 @@ console.log("Validation result:", parsed);
       },
       include: { updates: true },
     });
+
+    await prisma.notification.create({
+      data: {
+        message: `New incident reported: ${created.title} (${created.severity})`,
+      },
+    });
     return NextResponse.json(created, { status: 201 });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

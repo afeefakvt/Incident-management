@@ -25,6 +25,7 @@ model User {
  incidentsReported Incident[] @relation("IncidentReporter")
  incidentsAssigned Incident[] @relation("IncidentAssignee")
  incidentUpdates IncidentUpdate[]
+ comments Comment[]
  createdAt DateTime @default(now())
  updatedAt DateTime @updatedAt
 }
@@ -99,6 +100,7 @@ model Incident {
  assignedTo User? @relation("IncidentAssignee", fields:[assignedToId], references: [id])
  carReading CarReading? @relation(fields: [carReadingId],references: [id])
  updates IncidentUpdate[]
+ comments Comment[]
  @@index([carId])
  @@index([reportedById])
  @@index([assignedToId])
@@ -162,11 +164,19 @@ enum IncidentUpdateType {
 }
 
 
-
 model Notification {
   id        Int      @id @default(autoincrement())
-  role      String   // "ADMIN" | "DRIVER" | "FLEET_MANAGER"
   message   String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  message    String
+  incident   Incident @relation(fields: [incidentId], references: [id])
+  incidentId Int
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  createdAt  DateTime @default(now())
 }
