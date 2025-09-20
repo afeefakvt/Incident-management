@@ -1,47 +1,63 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useIncidents, useUpdateIncident } from "@/lib/queries/incidents"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { exportToPDF } from "@/lib/utils/exportPdf"
-import { exportToExcel } from "@/lib/utils/exportExcel"
-import { NotificationBell } from "./Bell"
-import { CommentsModal } from "../CommentsModal"
+import { useState, useEffect } from "react";
+import { useIncidents, useUpdateIncident } from "@/lib/queries/incidents";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { exportToPDF } from "@/lib/utils/exportPdf";
+import { exportToExcel } from "@/lib/utils/exportExcel";
+import { NotificationBell } from "./Bell";
+import { CommentsModal } from "../CommentsModal";
 
 export default function IncidentsTable({ initialFilters = {} as any }) {
-  const [filters, setFilters] = useState({ ...initialFilters, page: 1, limit: 5 })
-  const [searchTerm, setSearchTerm] = useState("")
-  const { data, isLoading } = useIncidents(filters)
-  const { mutate } = useUpdateIncident()
-  const [selectedIncident, setSelectedIncident] = useState<number | null>(null)
-
+  const [filters, setFilters] = useState({
+    ...initialFilters,
+    page: 1,
+    limit: 5,
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const { data, isLoading } = useIncidents(filters);
+  const { mutate } = useUpdateIncident();
+  const [selectedIncident, setSelectedIncident] = useState<number | null>(null);
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setFilters((f: any) => ({ ...f, query: searchTerm, page: 1 }))
-    }, 400)
-    return () => clearTimeout(handler)
-  }, [searchTerm])
+      setFilters((f: any) => ({ ...f, query: searchTerm, page: 1 }));
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
-  if (isLoading) return <div className="p-4">Loading…</div>
+  if (isLoading) return <div className="p-4">Loading…</div>;
 
-  const items = data?.items ?? []
-  const total = data?.total ?? 0
-  const page = filters.page
-  const limit = filters.limit
-  const totalPages = Math.ceil(total / limit)
+  const items = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const page = filters.page;
+  const limit = filters.limit;
+  const totalPages = Math.ceil(total / limit);
 
   const handleExportExcel = () => {
-    exportToExcel(items, "incidents")
-  }
+    exportToExcel(items, "incidents");
+  };
 
   const handleExportPDF = () => {
-    exportToPDF(items, "incidents")
-  }
+    exportToPDF(items, "incidents");
+  };
 
   return (
     <div className="space-y-4">
@@ -68,13 +84,17 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
-              {["PENDING", "IN_PROGRESS", "RESOLVED", "CLOSED", "CANCELLED"].map(
-                (s) => (
-                  <SelectItem key={s} value={s}>
-                    {s}
-                  </SelectItem>
-                )
-              )}
+              {[
+                "PENDING",
+                "IN_PROGRESS",
+                "RESOLVED",
+                "CLOSED",
+                "CANCELLED",
+              ].map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -176,22 +196,25 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
                   {new Date(it.occurredAt).toLocaleString()}
                 </TableCell>
                 <TableCell>{it.assignedTo?.name ?? "—"}</TableCell>
-              <TableCell>
-              <Button variant="outline" size="sm" onClick={() => setSelectedIncident(it.id)}>
-                Comments
-              </Button>
-            </TableCell>
-
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedIncident(it.id)}
+                  >
+                    Comments
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
-           {selectedIncident && (
-        <CommentsModal
-          incidentId={selectedIncident}
-          open={!!selectedIncident}
-          onClose={() => setSelectedIncident(null)}
-        />
-      )}
+          {selectedIncident && (
+            <CommentsModal
+              incidentId={selectedIncident}
+              open={!!selectedIncident}
+              onClose={() => setSelectedIncident(null)}
+            />
+          )}
         </Table>
       </div>
 
@@ -213,12 +236,21 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
                 {it.status}
               </span>
             </div>
-            <a
-              href={`/fleetmanager/incidents/${it.id}`}
-              className="text-blue-600 underline text-sm"
-            >
-              View
-            </a>
+            <div className="flex gap-2">
+              <a
+                href={`/fleetmanager/incidents/${it.id}`}
+                className="text-blue-600 underline text-sm"
+              >
+                View
+              </a>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedIncident(it.id)}
+              >
+                Comments
+              </Button>
+            </div>
           </Card>
         ))}
       </div>
@@ -248,7 +280,7 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function badgeBySeverity(s: string) {
@@ -258,5 +290,5 @@ function badgeBySeverity(s: string) {
     ? "bg-orange-100 text-orange-700"
     : s === "MEDIUM"
     ? "bg-yellow-100 text-yellow-700"
-    : "bg-green-100 text-green-700"
+    : "bg-green-100 text-green-700";
 }
