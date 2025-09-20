@@ -167,7 +167,7 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
                     {it.severity}
                   </span>
                 </TableCell>
-                <TableCell>
+                {/* <TableCell>
                   <Select
                     defaultValue={it.status}
                     onValueChange={(val) =>
@@ -191,7 +191,7 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
                       ))}
                     </SelectContent>
                   </Select>
-                </TableCell>
+                </TableCell> */}
                 <TableCell>
                   {new Date(it.occurredAt).toLocaleString()}
                 </TableCell>
