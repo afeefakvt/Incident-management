@@ -1,4 +1,3 @@
-// RoleSelector.tsx
 import { useState } from "react";
 
 export default function RoleSelector({ onRoleChange }: { onRoleChange: (role: string) => void }) {

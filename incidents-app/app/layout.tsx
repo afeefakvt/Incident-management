@@ -20,7 +20,6 @@ export default function RootLayout({
           <div className="min-h-screen">
             <Sidebar />
             
-            {/* Main Content */}
             <div className="lg:pl-64">
               {/* Mobile content padding for fixed header */}
               <div className="lg:hidden h-16" />

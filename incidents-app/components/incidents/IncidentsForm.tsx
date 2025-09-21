@@ -37,7 +37,6 @@ export default function IncidentForm() {
     const formData = new FormData(form)
     const payload: any = Object.fromEntries(formData.entries())
 
-    // ---- Validation ----
     const newErrors: string[] = []
 
     if (!payload.title || payload.title.trim().length < 3)

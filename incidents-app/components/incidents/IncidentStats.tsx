@@ -30,8 +30,6 @@ export default function IncidentStats() {
   if (!data) return <div className="p-4">No data available</div> // Handle undefined data
 
   const s = data
-
-  
   // Format data for charts
   const statusData = Object.entries(s.byStatus || {}).map(([k, v]) => ({
     name: k,
@@ -50,7 +48,6 @@ export default function IncidentStats() {
 
   return (
     <div className="grid gap-6">
-      {/* Summary Cards */}
       <div className="grid md:grid-cols-4 gap-4">
         <StatCard title="Total Incidents" value={s.total} />
         <StatCard title="Open Incidents" value={s.openIncidents} />
@@ -64,7 +61,6 @@ export default function IncidentStats() {
         />
       </div>
 
-      {/* Charts */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Status Pie Chart */}
         <Card>

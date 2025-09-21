@@ -56,10 +56,7 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
   const total = data?.total ?? 0;
   const page = filters.page;
   const limit = filters.limit;
-  const totalPages = Math.ceil(total / limit);
-
-  console.log(data,"dataaaaaaaaaaa");
-  
+  const totalPages = Math.ceil(total / limit);  
 
   const handleExportExcel = () => {
     exportToExcel(items, "incidents");
@@ -71,7 +68,6 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
 
   return (
     <div className="space-y-6">
-      {/* Filters and Actions */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex flex-col sm:flex-row gap-3 flex-1">
           <Input
@@ -252,7 +248,6 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
         ))}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500">
@@ -282,7 +277,6 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
         </div>
       )}
 
-      {/* Comments Modal */}
       {selectedIncident && (
         <CommentsModal
           incidentId={selectedIncident}

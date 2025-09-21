@@ -94,7 +94,6 @@ export default function IncidentDetail({ id }: { id: string }) {
         </CardContent>
       </Card>
 
-      {/* Images */}
       <Card>
         <CardHeader>
           <CardTitle>Images</CardTitle>
