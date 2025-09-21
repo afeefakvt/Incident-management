@@ -61,7 +61,6 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
 
   return (
     <div className="space-y-4">
-      {/* Top bar with filters + bell */}
       <div className="flex flex-wrap gap-3 items-center justify-between">
         <div className="flex flex-wrap gap-3">
           <Input
@@ -129,7 +128,6 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
           </div>
         </div>
 
-        {/* Notification Bell aligned to right */}
         <NotificationBell />
       </div>
 
