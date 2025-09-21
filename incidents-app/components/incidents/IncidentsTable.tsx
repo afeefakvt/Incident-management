@@ -30,7 +30,7 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
   const [filters, setFilters] = useState({
     ...initialFilters,
     page: 1,
-    limit: 10,
+    limit: 5,
   });
   const [searchTerm, setSearchTerm] = useState("");
   const { data, isLoading } = useIncidents(filters);
@@ -57,6 +57,9 @@ export default function IncidentsTable({ initialFilters = {} as any }) {
   const page = filters.page;
   const limit = filters.limit;
   const totalPages = Math.ceil(total / limit);
+
+  console.log(data,"dataaaaaaaaaaa");
+  
 
   const handleExportExcel = () => {
     exportToExcel(items, "incidents");
