@@ -15,12 +15,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-gray-50">
         <Providers>
-          <div className="flex bg-gray-50 min-h-screen">
-            {/* Sidebar always visible */}
+          <div className="min-h-screen">
             <Sidebar />
-            <main className="flex-1 ">{children}</main>
+            
+            {/* Main Content */}
+            <div className="lg:pl-64">
+              {/* Mobile content padding for fixed header */}
+              <div className="lg:hidden h-16" />
+              
+              <main className="flex-1 min-h-screen">
+                {children}
+              </main>
+            </div>
           </div>
         </Providers>
       </body>

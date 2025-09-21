@@ -14,6 +14,7 @@ import {
   FileText,
   AlertTriangle,
   Menu,
+  X,
 } from "lucide-react"
 
 const navItems = [
@@ -27,43 +28,64 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false)
 
   return (
-    <div>
-      {/* Mobile: Hamburger menu */}
-      <div className="md:hidden p-2 border-b flex justify-between items-center bg-gray-50 ">
-        <Sheet open={open} onOpenChange={setOpen} >
-          <SheetTrigger asChild >
-            <Button variant="ghost" size="icon">
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left"   className="w-64 p-0 !bg-gray-50 h-full " style={{ backgroundColor: "#f9fafb" }}>
-            <NavItems pathname={pathname} onNavigate={() => setOpen(false)}  />
-          </SheetContent>
-        </Sheet>
-      </div>
+    <>
+      {/* Mobile Header with Hamburger */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="p-2">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 p-0">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between p-4 border-b">
+                  <h2 className="text-lg font-semibold">Incident Management</h2>
+                </div>
+                <div className="flex-1 p-4">
+                  <NavItems pathname={pathname} onNavigate={() => setOpen(false)} />
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+          <h1 className="text-lg font-semibold text-gray-900">Incidents</h1>
+        </div>
+      </header>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:flex-col md:w-64 border-r h-screen p-4 ">
-        <div className="text-xl font-bold mb-6">Incident Management</div>
-        <NavItems pathname={pathname} />
+      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-64 lg:bg-white lg:border-r lg:border-gray-200">
+        <div className="flex flex-col flex-1 min-h-0">
+          <div className="flex items-center h-16 px-6 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900">Incident Management</h2>
+          </div>
+          <div className="flex-1 p-4">
+            <NavItems pathname={pathname} />
+          </div>
+        </div>
       </aside>
-    </div>
+    </>
   )
 }
 
 function NavItems({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
-    <nav className="flex flex-col gap-2 bg-gray-50">
+    <nav className="space-y-2">
       {navItems.map((item) => {
         const isActive = pathname === item.href
         return (
           <Link key={item.href} href={item.href} onClick={onNavigate}>
             <Button
               variant={isActive ? "default" : "ghost"}
-              className="w-full justify-start gap-2"
+              className={`w-full justify-start gap-3 h-11 px-4 ${
+                isActive 
+                  ? "bg-primary text-primary-foreground shadow-sm" 
+                  : "hover:bg-gray-100 text-gray-700"
+              }`}
             >
-              <item.icon className="h-5 w-5" />
-              {item.label}
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <span className="truncate">{item.label}</span>
             </Button>
           </Link>
         )
