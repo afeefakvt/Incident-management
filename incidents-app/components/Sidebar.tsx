@@ -36,7 +36,7 @@ export default function Sidebar() {
               <Menu className="h-6 w-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left"   className="w-64 p-0 !bg-gray-50 h-full">
+          <SheetContent side="left"   className="w-64 p-0 !bg-gray-50 h-full " style={{ backgroundColor: "#f9fafb" }}>
             <NavItems pathname={pathname} onNavigate={() => setOpen(false)}  />
           </SheetContent>
         </Sheet>
